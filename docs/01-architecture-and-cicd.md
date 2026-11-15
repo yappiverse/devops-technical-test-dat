@@ -109,6 +109,12 @@ flowchart LR
     ALERT -.->|Trigger Kill Switch| APPCONFIG
 ```
 
+Versi DrawIO
+![Diagram Arsitektur AWS](DiagramArsitektur.drawio.svg)
+
+> **Catatan:** Diagram arsitektur visual dapat dilihat di atas atau diakses melalui Google Drive: [Tautan Diagram Visual](https://drive.google.com/file/d/1KcQBrQZsjwxcPZX5jHyLU-02Gt9FOrxo/view?usp=sharing).
+
+
 ---
 
 ## 2. Alur CI/CD Pipeline
