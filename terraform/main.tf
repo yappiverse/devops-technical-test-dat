@@ -17,7 +17,7 @@ module "database" {
   environment                           = var.environment
   vpc_id                                = module.networking.vpc_id
   data_subnet_ids                       = module.networking.data_subnet_ids
-  app_security_group_id                 = module.networking.app_security_group_id
+  app_security_group_id                 = module.networking.backend_security_group_id
   db_instance_class                     = var.db_instance_class
   db_multi_az                           = var.db_multi_az
   performance_insights_enabled          = var.db_performance_insights_enabled
@@ -25,6 +25,7 @@ module "database" {
   redis_node_type                       = var.redis_node_type
   redis_num_cache_clusters              = var.redis_num_cache_clusters
 }
+
 
 module "etc" {
   source = "./modules/etc"

@@ -169,9 +169,64 @@ resource "aws_security_group" "alb" {
   }
 }
 
+resource "aws_security_group" "frontend_app" {
+  name        = "${var.project_name}-${var.environment}-frontend-sg"
+  description = "Traffic to frontend Vue.js EC2 instances from ALB only"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "Frontend HTTP port 80 from ALB"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
+  egress {
+    description = "Allow all outbound internet via NAT Gateway"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-frontend-sg"
+    Environment = var.environment
+  }
+}
+
+resource "aws_security_group" "backend_app" {
+  name        = "${var.project_name}-${var.environment}-backend-sg"
+  description = "Traffic to backend Laravel EC2 instances from ALB only"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    description     = "Backend HTTP port 8000 from ALB"
+    from_port       = 8000
+    to_port         = 8000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+
+  egress {
+    description = "Allow all outbound internet via NAT Gateway"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-backend-sg"
+    Environment = var.environment
+  }
+}
+
+# Backward compatibility alias
 resource "aws_security_group" "app" {
   name        = "${var.project_name}-${var.environment}-app-sg"
-  description = "Traffic to backend and frontend EC2 instances from ALB"
+  description = "Deprecated: backward compatibility security group for shared app tier"
   vpc_id      = aws_vpc.main.id
 
   ingress {
@@ -224,6 +279,41 @@ resource "aws_lb_listener" "http" {
   port              = 80
   protocol          = "HTTP"
 
+  dynamic "default_action" {
+    for_each = var.certificate_arn != "" ? [1] : []
+    content {
+      type = "redirect"
+
+      redirect {
+        port        = "443"
+        protocol    = "HTTPS"
+        status_code = "HTTP_301"
+      }
+    }
+  }
+
+  dynamic "default_action" {
+    for_each = var.certificate_arn == "" ? [1] : []
+    content {
+      type = "fixed-response"
+
+      fixed_response {
+        content_type = "text/plain"
+        message_body = "Route not found"
+        status_code  = "404"
+      }
+    }
+  }
+}
+
+resource "aws_lb_listener" "https" {
+  count             = var.certificate_arn != "" ? 1 : 0
+  load_balancer_arn = aws_lb.main.arn
+  port              = 443
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
+  certificate_arn   = var.certificate_arn
+
   default_action {
     type = "fixed-response"
     fixed_response {
@@ -233,3 +323,4 @@ resource "aws_lb_listener" "http" {
     }
   }
 }
+

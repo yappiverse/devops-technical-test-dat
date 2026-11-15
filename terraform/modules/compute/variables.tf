@@ -83,3 +83,28 @@ variable "user_data_template" {
   type        = string
   default     = ""
 }
+
+variable "app_secrets_arn" {
+  description = "Secrets Manager ARN for application secrets"
+  type        = string
+  default     = "*"
+}
+
+variable "ssm_frontend_api_url_arn" {
+  description = "SSM Parameter Store ARN for frontend API URL"
+  type        = string
+  default     = "*"
+}
+
+variable "uploads_bucket_arn" {
+  description = "S3 Bucket ARN for user uploads"
+  type        = string
+  default     = "*"
+}
+
+variable "appconfig_application_id" {
+  description = "AWS AppConfig Application ID for feature flags"
+  type        = string
+  default     = "*"
+}
+

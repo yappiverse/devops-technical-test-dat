@@ -32,3 +32,10 @@ variable "data_subnet_cidrs" {
   description = "CIDR blocks for private data subnets"
   type        = list(string)
 }
+
+variable "certificate_arn" {
+  description = "ACM Certificate ARN for HTTPS listener on ALB (optional, if omitted port 80 listener remains primary)"
+  type        = string
+  default     = ""
+}
+

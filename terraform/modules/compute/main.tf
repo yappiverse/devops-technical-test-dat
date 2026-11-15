@@ -47,7 +47,7 @@ resource "aws_iam_role_policy_attachment" "ecr_read" {
 
 resource "aws_iam_policy" "secrets_access" {
   name        = "${var.project_name}-${var.environment}-${var.service_name}-secrets-policy"
-  description = "Read access to secrets in Secrets Manager and SSM Parameter Store"
+  description = "Scoped least-privilege read access to application secrets, SSM parameters, and S3 uploads"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -58,7 +58,7 @@ resource "aws_iam_policy" "secrets_access" {
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret"
         ]
-        Resource = "*"
+        Resource = var.app_secrets_arn != "*" ? [var.app_secrets_arn] : ["*"]
       },
       {
         Effect = "Allow"
@@ -67,16 +67,30 @@ resource "aws_iam_policy" "secrets_access" {
           "ssm:GetParameters",
           "ssm:GetParametersByPath"
         ]
-        Resource = "*"
+        Resource = var.ssm_frontend_api_url_arn != "*" ? [
+          var.ssm_frontend_api_url_arn,
+          "arn:aws:ssm:*:*:parameter/${var.project_name}/${var.environment}/*"
+        ] : ["*"]
       },
       {
         Effect = "Allow"
         Action = [
           "s3:GetObject",
           "s3:PutObject",
+          "s3:DeleteObject"
+        ]
+        Resource = var.uploads_bucket_arn != "*" ? [
+          "${var.uploads_bucket_arn}/*"
+        ] : ["*"]
+      },
+      {
+        Effect = "Allow"
+        Action = [
           "s3:ListBucket"
         ]
-        Resource = "*"
+        Resource = var.uploads_bucket_arn != "*" ? [
+          var.uploads_bucket_arn
+        ] : ["*"]
       },
       {
         Effect = "Allow"
@@ -84,11 +98,14 @@ resource "aws_iam_policy" "secrets_access" {
           "appconfig:GetLatestConfiguration",
           "appconfig:StartConfigurationSession"
         ]
-        Resource = "*"
+        Resource = var.appconfig_application_id != "*" ? [
+          "arn:aws:appconfig:*:*:application/${var.appconfig_application_id}/*"
+        ] : ["*"]
       }
     ]
   })
 }
+
 
 resource "aws_iam_role_policy_attachment" "secrets_attach" {
   role       = aws_iam_role.instance.name

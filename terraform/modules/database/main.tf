@@ -15,7 +15,7 @@ resource "aws_security_group" "db" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description     = "MySQL from App tier"
+    description     = "MySQL from Backend Laravel tier"
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
@@ -42,7 +42,7 @@ resource "aws_security_group" "redis" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description     = "Redis from App tier"
+    description     = "Redis from Backend Laravel tier"
     from_port       = 6379
     to_port         = 6379
     protocol        = "tcp"

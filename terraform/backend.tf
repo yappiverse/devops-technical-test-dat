@@ -17,6 +17,7 @@ terraform {
     key            = "prod/laravel-vue/terraform.tfstate"
     region         = "ap-southeast-1"
     encrypt        = true
+    kms_key_id     = "alias/dat-devops-terraform-state-key"
     dynamodb_table = "dat-devops-terraform-locks"
   }
 }
