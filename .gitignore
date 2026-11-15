@@ -1,25 +1,39 @@
-**/.terraform/*
-
+# Terraform local execution & runtime artifacts
+**/.terraform/
 *.tfstate
 *.tfstate.*
-
+*.tfplan*
+*tfplan*
 crash.log
 crash.*.log
 
+# Terraform local overrides & sensitive variables
+# (Catatan: terraform.tfvars & codebuild.auto.tfvars di-track sebagai konfigurasi contoh untuk pengujian)
 *.tfvars.json
+*.secret*.tfvars
+*.secrets*.tfvars
+*.local.tfvars
 secret.auto.tfvars
-
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
-
 .terraformrc
 terraform.rc
 
+# Local environment, keys & certificates
+.env
+.env.*
+*.pem
+*.key
+
+# OS & Editor artifacts
 .DS_Store
+**/.DS_Store
 Thumbs.db
 .vscode/
 .idea/
 *.swp
 *.swo
+
+_backup_docs
